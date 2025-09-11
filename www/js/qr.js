@@ -20,7 +20,7 @@ function TesterLaCompatibilite() {
 /*  ***************** Connexion au serveur WebSocket ********************   */
 
 function ConnexionAuServeurWebsocket() {
-    ws = new WebSocket('ws://' + ipServeur + '/echo');
+    ws = new WebSocket('ws://' + ipServeur + '/qr');
 
     ws.onclose = function (evt) {
         window.alert('WebSocket close');
@@ -41,4 +41,8 @@ function ControleIHM() {
 
 function BPEnvoyer() {
     ws.send(document.getElementById('messageEnvoi').value);
+}
+
+function BPRecevoir() {
+    ws.send(document.getElementById('resultatTexte'));
 }

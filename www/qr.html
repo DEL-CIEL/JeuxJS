@@ -4,18 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR</title>
-    <script src="js/qr.js"></script>
 </head>
 <body>
-    <div>
-        <label>Message à envoyer 2: </label>
-        <input type="text" id="messageEnvoi">
-        <input type="button" id="Envoyer" value="Envoyer">
-    </div>
-    <div>
-        <label>Message reçu : </label>
-        <input type="text" id="messageRecu" readonly>
-    </div>
+    <header>
+        <h1>Jeu Questions/Reponses (WebSocket)</h1>
+    </header>
+
+    <section>
+        <div>
+            <label>Nom :</label>
+            <input type="text" id="nom" placeholder="Votre nom">
+        </div>
+        <div>
+            <label>Question :</label>
+            <input type="text" id="messageRecu" readonly>
+        </div>
+        <div>
+            <label>Reponse :</label>
+            <input type="text" id="messageEnvoi">
+            <input type="button" id="Envoyer" value="Valider">
+        </div>
+        <div>
+            <label>Resultat :</label>
+            <input type="text" id="resultatTexte" readonly>
+        </div>
+        <div>
+            <label>Resultats joueurs :</label>
+            <div id="resultats" style="white-space: pre; border: 1px solid #ccc; padding: 6px; min-height: 24px;"></div>
+        </div>
+    </section>
+
+    <footer>
+        <small>WebSocket Q/R sur /qr</small>
+    </footer>
+
+    <script type="text/javascript" src="js/qr.js"></script>
 </body>
-<footer></footer>
 </html>
