@@ -94,10 +94,22 @@ class CQr {
     }
 
     TraiterReponse(wsClient, message) {
-        if (parseInt(message) === this.bonneReponse) {
+        let msg;
+        try {
+            msg = JSON.parse(message);
+        } catch (e) {
+            console.log("Message non recu: ", message);
+        }
+
+        let nom = msg.nom;
+        let reponse = parseInt(msg.reponse);
+
+        if (reponse === this.bonneReponse) {
+            console.log(nom + " a donne la bonne reponse : ", reponse);
             wsClient.send("Bonne reponse !");
             this.NouvelleQuestion(wsClient);
         } else {
+            console.log(nom + " a donne la mauvaise reponse :", reponse);
             wsClient.send("Mauvaise reponse !");
         }
     }
