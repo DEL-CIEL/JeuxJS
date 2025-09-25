@@ -83,35 +83,38 @@ class CQr {
         return Math.floor(Math.random() * Math.floor(max));
     }
 
-    NouvelleQuestion(wsClient) {
+    NouvelleQuestion() {
         let x = this.GetRandomInt(11);
         let y = this.GetRandomInt(11);
         this.question = x + '*' + y + ' = ?';
         this.bonneReponse = x * y;
-
-        // Envoyer la nouvelle question au client
-        wsClient.send(this.question);
     }
 
-    TraiterReponse(wsClient, message) {
-        let msg;
-        try {
-            msg = JSON.parse(message);
-        } catch (e) {
-            console.log("Message non recu: ", message);
-        }
 
-        let nom = msg.nom;
-        let reponse = parseInt(msg.reponse);
+    EnvoyerResultatDiff() {
+        const messagePourLesClients = {
+            question: this.question
+        };
+        aWss.broadcast(JSON.stringify(messagePourLesClients));
+    }
+
+
+    TraiterReponse(wsClient, message) {
+        let mess = JSON.parse(message);
+        let reponse = parseInt(mess.reponse);
 
         if (reponse === this.bonneReponse) {
-            console.log(nom + " a donne la bonne reponse : ", reponse);
-            wsClient.send("Bonne reponse !");
-            this.NouvelleQuestion(wsClient);
+            this.question = "Bonne reponse de " + mess.nom;
         } else {
-            console.log(nom + " a donne la mauvaise reponse :", reponse);
-            wsClient.send("Mauvaise reponse !");
+            this.question = "Mauvaise reponse de " + mess.nom;
         }
+
+        this.EnvoyerResultatDiff();
+
+        setTimeout(() => {
+            this.NouvelleQuestion();
+            this.EnvoyerResultatDiff();
+        }, 3000);
     }
 }
 
@@ -120,16 +123,13 @@ var jeuxQr = new CQr;
 /* *************** serveur WebSocket express /qr ********************* */
 //
 exp.ws('/qr', function (ws, req) {
-    console.log('Connection WebSocket %s sur le port %s', req.connection.remoteAddress,
-        req.connection.remotePort);
-    jeuxQr.NouvelleQuestion(ws);
-    ws.on('message', TMessage);
-    function TMessage(message) {
-        jeuxQr.TraiterReponse(ws, message);
-    }
-    ws.on('close', function (reasonCode, description) {
-        console.log('Deconnexion WebSocket %s sur le port %s',
-            req.connection.remoteAddress, req.connection.remotePort);
+    let quiz = new CQr();
+
+    quiz.NouvelleQuestion();
+    quiz.EnvoyerResultatDiff();
+
+    ws.on("message", function (message) {
+        quiz.TraiterReponse(ws, message);
     });
 });
 

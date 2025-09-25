@@ -31,11 +31,12 @@ function ConnexionAuServeurWebsocket() {
     };
 
     ws.onmessage = function (evt) {
-        let msg = evt.data;
-        if (msg.includes("=")) {
-            document.getElementById("messageRecu").value = msg;
+        let data = JSON.parse(evt.data);
+
+        if (data.question.includes("=")) {
+            document.getElementById("messageRecu").value = data.question;
         } else {
-            document.getElementById("resultatTexte").value = msg;
+            document.getElementById("resultatTexte").value = data.question;
         }
     };
 }
