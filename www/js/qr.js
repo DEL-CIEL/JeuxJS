@@ -31,7 +31,12 @@ function ConnexionAuServeurWebsocket() {
     };
 
     ws.onmessage = function (evt) {
-        document.getElementById('messageRecu').value = evt.data;
+        let msg = evt.data;
+        if (msg.includes("=")) {
+            document.getElementById("messageRecu").value = msg;
+        } else {
+            document.getElementById("resultatTexte").value = msg;
+        }
     };
 }
 
@@ -41,6 +46,7 @@ function ControleIHM() {
 
 function BPEnvoyer() {
     ws.send(document.getElementById('messageEnvoi').value);
+    setTimeout(document.getElementById("messageEnvoi").value = "", 3000);
 }
 
 function BPRecevoir() {

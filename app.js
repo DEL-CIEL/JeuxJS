@@ -73,11 +73,61 @@ aWss.broadcast = function broadcast(data) {
 
 
 
+class CQr {
+    constructor() {
+        this.question = '?';
+        this.bonneReponse = 0;
+    }
+
+    GetRandomInt(max) {
+        return Math.floor(Math.random() * Math.floor(max));
+    }
+
+    NouvelleQuestion(wsClient) {
+        let x = this.GetRandomInt(11);
+        let y = this.GetRandomInt(11);
+        this.question = x + '*' + y + ' = ?';
+        this.bonneReponse = x * y;
+
+        // Envoyer la nouvelle question au client
+        wsClient.send(this.question);
+    }
+
+    TraiterReponse(wsClient, message) {
+        if (parseInt(message) === this.bonneReponse) {
+            wsClient.send("Bonne reponse !");
+            this.NouvelleQuestion(wsClient);
+        } else {
+            wsClient.send("Mauvaise reponse !");
+        }
+    }
+}
+
+var jeuxQr = new CQr;
+
+/* *************** serveur WebSocket express /qr ********************* */
+//
+exp.ws('/qr', function (ws, req) {
+    console.log('Connection WebSocket %s sur le port %s', req.connection.remoteAddress,
+        req.connection.remotePort);
+    jeuxQr.NouvelleQuestion(ws);
+    ws.on('message', TMessage);
+    function TMessage(message) {
+        jeuxQr.TraiterReponse(ws, message);
+    }
+    ws.on('close', function (reasonCode, description) {
+        console.log('Deconnexion WebSocket %s sur le port %s',
+            req.connection.remoteAddress, req.connection.remotePort);
+    });
+});
+
+
+
+/*
 var question = '?';
 var bonneReponse = 0;
-
 // Connexion des clients a la WebSocket /qr et evenements associés 
-// Questions/reponses 
+// Questions/reponses
 exp.ws('/qr', function (ws, req) {
     console.log('Connection WebSocket %s sur le port %s',
         req.connection.remoteAddress, req.connection.remotePort);
@@ -95,7 +145,12 @@ exp.ws('/qr', function (ws, req) {
         console.log('De %s %s, message :%s', req.connection.remoteAddress,
             req.connection.remotePort, message);
         if (message == bonneReponse) {
-            NouvelleQuestion();
+            ws.send("Bonne reponse");
+            setTimeout(NouvelleQuestionBinaire, 3000);
+            
+        }
+        else {
+            ws.send("Mauvaise reponse");
         }
     }
 
@@ -108,8 +163,16 @@ exp.ws('/qr', function (ws, req) {
         aWss.broadcast(question);
     }
 
+    function NouvelleQuestionBinaire() {
+        var nbDec = Math.floor(Math.random() * 256);
+        var nbBin = nbDec.toString(2).padStart(8, '0');
+        question = nbBin;
+        bonneReponse = nbDec;
+        aWss.broadcast(question);
+    }
+
     function GetRandomInt(max) {
         return Math.floor(Math.random() * Math.floor(max));
     }
 
-}); 
+});*/
